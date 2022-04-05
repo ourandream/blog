@@ -4,6 +4,8 @@ tags: algorithm
 categories: reading
 mathjax: true
 abbrlink: ab8a63f3
+date: 2021/12/23 18:23:27
+updated: 2022/04/05 15:07:08
 ---
 CLRS算是非常难读的一本书了，书中的数学证明真的是多的要死，而且看起来真的没啥规律可循。
 据网上说这本书算是给你开了一扇算法的大门，然后门里的大风差点吹飞你。

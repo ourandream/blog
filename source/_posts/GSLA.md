@@ -4,10 +4,13 @@ tags: math
 categories: reading
 mathjax: true
 abbrlink: 146a5e7e
+date: 2021/12/23 18:23:27
+updated: 2022/04/05 15:07:52
 ---
-这本linear algebra的教材非常经典，bintou老师非常推荐。不过知识点也有点小多。
-目前只是初略的整理，以后或许会尝试按知识体系重新组织一下。
+线性代数相关内容的学习总结.
 <!--more-->
+---
+
 ## 第一章
 基本是已经学过的内容，过了一遍后面的key idea
 ### 1.1 Vecotrs and Linear Combinations

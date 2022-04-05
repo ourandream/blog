@@ -2,8 +2,9 @@
 title: JavaScript
 category: front-end
 abbrlink: cc1b9611
+date: 2021/12/23 18:23:21
+updated: 2021/12/23 18:23:21
 ---
-
 对MDN web Docs中[JS](https://developer.mozilla.org/en-US/docs/Learn/JavaScript)学习内容的总结.
 
 <!--more-->
@@ -305,6 +306,10 @@ myArray.unshift('Edinburgh');
 myArray.shift();
 ```
 
+合并数组:
+```js
+data_type=data_type.concat(array);
+```
 遍历数组:
 
 ```js
@@ -340,7 +345,10 @@ arr.join('');
 ```
 
 我们也可以使用`toString()`来转换,但这样会自动加`,`分隔且不可修改.
-
+正确按数字大小排序数组：
+```js
+weeks.sort(function (a, b) { return a - b;  })
+```
 # building blocks
 
 ## conditions
@@ -510,7 +518,20 @@ textBox.addEventListener('keydown', event => console.log(`You pressed "${event.k
 ```js
 const doubled = originals.map(item => item * 2);
 ```
+可以使用rest parameter语法使用函数剩下的所有参数:
+```js
+function myFun(a, b, ...manyMoreArgs) {
+  console.log("a", a)
+  console.log("b", b)
+  console.log("manyMoreArgs", manyMoreArgs)
+}
 
+myFun("one", "two", "three", "four", "five", "six")
+
+// a, "one"
+// b, "two"
+// manyMoreArgs, ["three", "four", "five", "six"] <-- notice it's an array
+```
 # event
 
 `event`是在系统中发生的行为或事件.在web中,`event`一般与element相对应(如按钮被点击).
@@ -672,6 +693,10 @@ person['age'];
 ```
 
 后者的好处是可以用变量来调用.
+移除property:
+```js
+delete obj.property
+```
 
 对象可以嵌套,调用时多写一层即可:
 
@@ -691,12 +716,24 @@ greeting: function() {
 
 `this`指的就是对象本身,这个用法在用类创建对象时会非常有用.
 
+注意js的`this`和一般编程语言不同,它是根据上下文得到含义的,也就是说,在函数中使用也不会出错:
+
+>method 里的 this 返回的是 obj,
+>function 里的 this 非严格模式下返回的是 global or window ，严格模式下返回 undefined,
+>箭头函数里没有自己的 this.
+
 我们可以修改properties的值:
 
 ```js
 person.age=3;
 ```
-
+为object添加特殊的属性:
+```js
+Object.defineProperty(object1, 'property1', {
+  value: 42,
+  writable: false
+});
+```
 我们也用类似的方法可以创建成员:
 
 ```js
@@ -747,10 +784,11 @@ let person1 = new Object({
 });
 ```
 
-我们也可以利用`create`来用已有对象建立新对象:
+我们也可以用已有对象建立新对象:
 
 ```js
-let person2 = Object.create(person1);
+let copy1 = Object.create(obj);//如果property有对象则会复制reference
+var copy2 = JSON.parse(JSON.stringify(obj));//深度拷贝
 ```
 
 ## objects prototype
@@ -835,7 +873,7 @@ Object.defineProperty(Teacher.prototype, 'constructor', {
     enumerable: false, // so that it does not appear in 'for in' loop
     writable: true });
 ```
-
+## class
 `ECMAScript 2015`提供了类似c++语言中的`class`的写法:
 
 ```js
@@ -859,8 +897,79 @@ class Person {
   };
 }
 ```
+上面是`class declaration`的写法,还要`class assignment`的写法:
+```js
+// unnamed
+let Rectangle = class {
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+};
+console.log(Rectangle.name);
+// output: "Rectangle"
 
+// named
+let Rectangle = class Rectangle2 {
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+};
+console.log(Rectangle.name);
+// output: "Rectangle2"
+```
 在解释器其实会将其转化为上面的构造函数的相关内容.下面的函数会被自动加入`prototype`中.
+在class的body使用`strict mode`.
+使用`static`创建class的properties和methods,它们只可通过class本身调用,不可通过class instance调用:
+```js
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  static displayName = "Point";
+  static distance(a, b) {
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
+
+    return Math.hypot(dx, dy);
+  }
+}
+
+const p1 = new Point(5, 5);
+const p2 = new Point(10, 10);
+p1.displayName; // undefined
+p1.distance;    // undefined
+p2.displayName; // undefined
+p2.distance;    // undefined
+
+console.log(Point.displayName);      // "Point"
+console.log(Point.distance(p1, p2)); // 7.0710678118654755
+```
+使用`public field declarations`定义properties:
+```js
+class Rectangle {
+  height = 0;
+  width;
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+}
+```
+加`#`进行private field declaration,定义的相关内容只可在class内访问:
+```js
+class Rectangle {
+  #height = 0;
+  #width;
+  constructor(height, width) {
+    this.#height = height;
+    this.#width = width;
+  }
+}
+```
 
 派生写法:
 
@@ -873,7 +982,29 @@ class Teacher extends Person {
   }
 }
 ```
+返回继承的class的内容:
+```js
+class Lion extends Cat {
+  speak() {
+    super.speak();
+    console.log(`${this.name} roars.`);
+  }
+}
+```
+使用`Mix-ins`,进行函数的继承:
+```js
+let calculatorMixin = Base => class extends Base {
+  calc() { }
+};
 
+let randomizerMixin = Base => class extends Base {
+  randomize() { }
+};
+
+//use
+class Foo { }
+class Bar extends calculatorMixin(randomizerMixin(Foo)) { }
+```
 如果后来我们想修改里面的properties,使用`getters`和`setters`:
 
 ```js
@@ -1250,6 +1381,20 @@ const para = document.createElement('p');
 link.textContent = 'Mozilla Developer Network';
 ```
 
+使用`classList`修改class的列表(注意它本身是只读的):
+```js
+// If the control is not active there is nothing to do
+  if (!select.classList.contains('active')) return;
+
+  // We need to get the list of options for the custom control
+  var optList = select.querySelector('.optList');
+
+  // We close the list of option
+  optList.classList.add('hidden');
+
+  // and we deactivate the custom control itself
+  select.classList.remove('active');
+```
 加入某个element的最后:
 
 ```js
@@ -1279,7 +1424,14 @@ para.style.backgroundColor = 'black';
 ```js
 para.setAttribute('class', 'highlight');
 ```
-
+设置`tabIndex`(即按tab foucus到的顺序):
+```js
+element.tabIndex = index;
+var index = element.tabIndex;
+```
+它的值是一个正整数或0,它的顺序的规则:
+1. 是如果设置了则按设置的数的大小排序,若同样大按出现的顺序排序.
+2. 如果为0或不支持,则按出现的次序排序.
 ## fetch data from server
 
 在以前,我们使用`XMLHttpRequest`来请求数据(Ajax),首先,我们需要创建一个对象:
@@ -1322,6 +1474,11 @@ fetch(url).then(function(response) {
 }).then(function(text) {
   poemDisplay.textContent = text;
 });
+
+fetch(url, {
+    method: 'post',
+    body: data,
+})
 ```
 
 它是一个异步函数,返回`promise`,而且我们不需要在处理请求类型和发送请求.
@@ -1679,6 +1836,398 @@ self.addEventListener('fetch', function(e) {
   );
 });
 ```
+## Validating forms
+js提供了[Constraint Validation API](https://developer.mozilla.org/en-US/docs/Web/API/Constraint_validation)用于验证数据.下列element支持它们:
+-   [`HTMLButtonElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLButtonElement) (represents a [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button) element)
+-   [`HTMLFieldSetElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFieldSetElement) (represents a [`<fieldset>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset) element)
+-   [`HTMLInputElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement) (represents an [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input) element)
+-   [`HTMLOutputElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLOutputElement) (represents an [`<output>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output) element)
+-   [`HTMLSelectElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLSelectElement) (represents a [`<select>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) element)
+-   [`HTMLTextAreaElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLTextAreaElement) (represents a [`<textarea>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea) element)
+有如下的attributes:
+-   `validationMessage`: 返回表述规范的文字.如果control不需要验证数据或符合规范,返回空字符.
+-   `validity`: 返回 `ValidityState` object,有如下attributes:
+    -   [`patternMismatch`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/patternMismatch "patternMismatch"): 值不符合`pattern`时返回true.
+    -   [`tooLong`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/tooLong "tooLong"):值长过规定的最长时返回true.
+    -   [`tooShort`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/tooShort "tooShort"): 值长过规定的最短时返回true.
+    -   [`rangeOverflow`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/rangeOverflow "rangeOverflow"): 值大于最大值时返回true.
+    -   [`rangeUnderflow`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/rangeUnderflow "rangeUnderflow"): 值大于最小值时返回true.
+    -   [`typeMismatch`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/typeMismatch "typeMismatch"): 值不符合type规定的规范时返回true(when [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-type) is `email` or `url`).
+    -   `valid`: 值符合要求时返回true.
+    -   `valueMissing`: 值是必须的却为空时返回true.
+-   `willValidate`: 值需要被检查时返回true.
+它还有如下的methods:
+-   `checkValidity()`:检查是否符合要求. 如果不符合, 返回false并让该element发出 [`invalid` event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/invalid_event)
+-   `reportValidity()`: 执行 `checkValidity()` method, 若为false就像用户进行了提交后一样告诉用户出错.
+-   `setCustomValidity(message)`:添加不符合要求时浏览器显示的信息.当添加时,该element被认为是`invalid`.添加空字符代表`valid`.
+浏览器默认的错误显示不可通过css,且在不同浏览器的实现不同,故我们可以通过[`novalidate`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/novalidate "This is a link to an unwritten page")属性让form关闭浏览器默认的验证和错误显示,然后使用自己设计的验证系统.
 
+## sending form data
+使用`fetch`和`FormData`:
+```js
+let form = document.querySelector('form');
 
+form.addEventListener('submit',async (e) => {
+
+ // on form submission, prevent default
+
+	 e.preventDefault();
+	
+	 // construct a FormData object, which fires the formdata event
+	
+	 data=new FormData(form);
+	
+	 await fetch(url+'input_a_bill', {
+	
+		 method: 'post',
+		
+		 body: data,
+	
+	 })
+
+});
+```
+即使有文件它也会自动处理.
+
+# others
+## Destructuring assignment
+用于解包数组或对象的语法.
+数组的基础用法:
+```js
+const [red, yellow, green] = foo;
+console.log(red); // "one"
+console.log(yellow); // "two"
+console.log(green); // "three"
+```
+定义声明分开:
+```js
+let a, b;
+
+[a, b] = [1, 2];
+console.log(a); // 1
+console.log(b); // 2
+```
+长度超过数组会被赋值为undefined.
+可以设置默认值:
+```js
+let a, b;
+
+[a=5, b=7] = [1];
+console.log(a); // 1
+console.log(b); // 7
+```
+理由这种语法可以进行值的交换:
+```js
+let a = 1;
+let b = 3;
+
+[a, b] = [b, a];
+console.log(a); // 3
+console.log(b); // 1
+
+const arr = [1,2,3];
+[arr[2], arr[1]] = [arr[1], arr[2]];
+console.log(arr); // [1,3,2]
+```
+可以处理函数的返回值:
+```js
+function f() {
+  return [1, 2];
+}
+
+let a, b;
+[a, b] = f();
+console.log(a); // 1
+console.log(b); // 2
+```
+可以忽略掉一些值:
+```js
+function f() {
+  return [1, 2, 3];
+}
+
+const [a, , b] = f();
+console.log(a); // 1
+console.log(b); // 3
+
+const [c] = f();
+console.log(c); // 1
+```
+将剩下的值赋给一个变量:
+```js
+const [a, ...b] = [1, 2, 3];
+console.log(a); // 1
+console.log(b); // [2, 3]
+```
+对象基本语法:
+```js
+const user = {
+    id: 42,
+    isVerified: true
+};
+
+const {id, isVerified} = user;
+
+console.log(id); // 42
+console.log(isVerified); // true
+```
+于定义分开(`()`是必须的):
+```js
+let a, b;
+
+({a, b} = {a: 1, b: 2});
+```
+使用新的名字:
+```js
+const o = {p: 42, q: true};
+const {p: foo, q: bar} = o;
+
+console.log(foo); // 42
+console.log(bar); // true
+```
+默认值:
+```js
+const {a = 10, b = 5} = {a: 3};
+
+console.log(a); // 3
+console.log(b); // 5
+```
+用于函数参数:
+```js
+const user = {
+  id: 42,
+  displayName: 'jdoe',
+  fullName: {
+    firstName: 'John',
+    lastName: 'Doe'
+  }
+};
+
+function userId({id}) {
+  return id;
+}
+
+function whois({displayName, fullName: {firstName: name}}) {
+  return `${displayName} is ${name}`;
+}
+
+console.log(userId(user)); // 42
+console.log(whois(user));  // "jdoe is John"
+```
+设置参数的默认值(使得该函数可不带参数):
+```js
+function drawChart({size = 'big', coords = {x: 0, y: 0}, radius = 25} = {}) {
+  console.log(size, coords, radius);
+  // do some chart drawing
+}
+
+drawChart({
+  coords: {x: 18, y: 30},
+  radius: 30
+});
+```
+数组和对象的destruction混用:
+```js
+const metadata = {
+  title: 'Scratchpad',
+  translations: [
+    {
+      locale: 'de',
+      localization_tags: [],
+      last_edit: '2014-04-14T08:43:37',
+      url: '/de/docs/Tools/Scratchpad',
+      title: 'JavaScript-Umgebung'
+    }
+  ],
+  url: '/en-US/docs/Tools/Scratchpad'
+};
+
+let {
+  title: englishTitle, // rename
+  translations: [
+    {
+       title: localeTitle, // rename
+    },
+  ],
+} = metadata;
+
+console.log(englishTitle); // "Scratchpad"
+console.log(localeTitle);  // "JavaScript-Umgebung"
+```
+在循环中使用:
+```js
+const people = [
+  {
+    name: 'Mike Smith',
+    family: {
+      mother: 'Jane Smith',
+      father: 'Harry Smith',
+      sister: 'Samantha Smith'
+    },
+    age: 35
+  },
+  {
+    name: 'Tom Jones',
+    family: {
+      mother: 'Norah Jones',
+      father: 'Richard Jones',
+      brother: 'Howard Jones'
+    },
+    age: 25
+  }
+];
+
+for (const {name: n, family: {father: f}} of people) {
+  console.log('Name: ' + n + ', Father: ' + f);
+}
+
+// "Name: Mike Smith, Father: Harry Smith"
+// "Name: Tom Jones, Father: Richard Jones"
+```
+使用computed property name:
+```js
+let key = 'z';
+let {[key]: foo} = {z: 'bar'};
+
+console.log(foo); // "bar"
+```
+将剩下的赋给一个变量:
+```js
+let {a, b, ...rest} = {a: 10, b: 20, c: 30, d: 40}
+a; // 10
+b; // 20
+rest; // { c: 30, d: 40 }
+```
+destruction可以让不合法的identifier合法:
+```js
+const foo = { 'fizz-buzz': true };
+const { 'fizz-buzz': fizzBuzz } = foo;
+
+console.log(fizzBuzz); // true
+```
+当进行destruction时,js会检查prototype链:
+```js
+let obj = {self: '123'};
+obj.__proto__.prot = '456';
+const {self, prot} = obj;
+// self "123"
+// prot "456" (Access to the prototype chain)
+```
+## modules
+以前js通常只需要单文件运行，故没有module功能，现代浏览器为起添加了此功能。
+注意只有在modules中可以使用modules,故引入文件需:
+```html
+<script type="module" src="main.js"></script>
+```
+modules的核心的`import`和`export`.
+首先是`export`,声明moudule可以被import的事物,可以是 functions, `var`, `let`, `const`, 或classes:
+```js
+export const name = 'square';
+```
+注意必须是`top-level item`,故不能在函数内export.
+更场景的用法是在文件结尾一次性export:
+```js
+export { name, draw, reportArea, reportPerimeter };
+```
+我们还可以设置一个默认export:
+```js
+export default function(ctx) {
+  ...
+}
+```
+然后是`import`:
+```js
+import { name, draw, reportArea, reportPerimeter } from './modules/square.js';
+```
+import默认:
+```js
+import defaultExport from "module-name";
+import {default as randomSquare} from './modules/square.js';
+```
+只执行代码不使用:
+```js
+import '/modules/my-module.js';
+```
+其中`./`表示当前路径.如果写`/`前缀则需补全前面的文件夹名.
+import后不可修改,但可以修改properties,类似const.
+module和通常的js文件有以下不同:
+- 必须使用server,使用本地文件运行会发送CORS错误.
+- 使用`strict mode`.
+- 自动defer.
+- 引入几次都只执行一次.
+- import进的功能在console不可用.
+我们可以使用`as`(import,export均可)来重命名避免命名冲突:
+```js
+// inside module.js
+export {
+  function1 as newFunctionName,
+  function2 as anotherNewFunctionName
+};
+
+// inside main.js
+import { newFunctionName, anotherNewFunctionName } from './modules/module.js';
+```
+我们还可以创建一个module对象来方便访问:
+```js
+import * as Module from './modules/module.js';
+Module.function1()
+```
+我们可以阻止多个文件作为一个module被`import`:
+```js
+export { Square } from './shapes/square.js';
+export { Triangle } from './shapes/triangle.js';
+export { Circle } from './shapes/circle.js';
+```
+注意在其中不能写代码,js会直接定位到相应的文件.
+我们还可以使用`import()`来动态引入.它返回`promise`:
+```js
+import('./modules/myModule.js')
+  .then((module) => {
+    // Do something with the module.
+  });
+```
+在module中可以使用`await`,引入的文件会自动等待:
+```js
+// fetch request
+const colors = fetch('../data/colors.json')
+  .then(response => response.json());
+
+export default await colors;
+```
+常见问题:
+- `.js`文件必须正确配置`MIME-type`.
+- 本地运行会导致CORS错误.
+- 如果使用`.mjs`表示module,有很多环境会不支持.
+## animation
+控制animation event:
+```css
+.slidein {
+  animation-duration: 3s;
+  animation-name: slidein;
+  animation-iteration-count: 3;
+  animation-direction: alternate;
+}
+
+@keyframes slidein {
+  from {
+    margin-left:100%;
+    width:300%
+  }
+
+  to {
+    margin-left:0%;
+    width:100%;
+  }
+}
+```
+
+```js
+var element = document.getElementById("watchme");
+element.addEventListener("animationstart", listener, false);
+element.addEventListener("animationend", listener, false);
+element.addEventListener("animationiteration", listener, false);
+
+element.className = "slidein";
+```
+注意我们是在js中让动画开始(添加class),不如start事件会在js执行前发出.
 

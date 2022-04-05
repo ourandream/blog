@@ -2,6 +2,8 @@
 title: css
 category: front-end
 abbrlink: 78cea6d8
+date: 2021/12/23 18:23:20
+updated: 2021/12/23 18:23:20
 ---
 对MDN web docs中[css](https://developer.mozilla.org/en-US/docs/Learn/CSS)的学习的个人总结.
 <!--more-->
@@ -1976,6 +1978,243 @@ target / context = result
 当日最重要的是我们要写一个一开始就组织好的html文件,这样即使不支持相关的layout也可使用.
 
 在IE的有些版本中对grid有过短暂的支持(注意edge也支持,所以可能出问题),但需要加类似-ms-的前缀.这个只有在需要支持该版本的IE的大量用户时才会使用,故只需做了解.
+# style form
+## base
+以前对form进行样式修改很困难，现在已经相对简单了，但还是有很多需要注意的点。
+和其他的element基本一样修改的：
+1.  `<form>`
+2.  [`<fieldset>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset) and [`<legend>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/leg).
+3.  Single-line text [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input)s (e.g. type text, url, email...), except for [`<input type="search">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/search).
+4.  Multi-line [`<textarea>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea)
+5.  Buttons (both [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input) and [`<button>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button))
+6.  [`<label>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label)
+7.  [`<output>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/output)
+
+注意`<input type='submit'>`若修改字体它仍会是系统的字体，故使用`button`更佳.
+不同的control安排padding等属性的规则不同,使用`box-sizing`统一设置为`border-box`.
+`legend`的位置修改需要使用`position`.
+
+较难修改的：
+-   Checkboxes and radio buttons
+-   [`<input type="search">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/search)
+
+不可以用css修改的：
+-   [`<input type="color">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color)
+-   Date-related controls such as [`<input type="datetime-local">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local)
+-   [`<input type="range">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range)
+-   [`<input type="file">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file)
+-   Elements involved in creating dropdown widgets, including [`<select>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select), [`<option>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option), [`<optgroup>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup) and [`<datalist>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist).
+-   [`<progress>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress) and [`<meter>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter)
+
+##  bad and ugly
+对于bad(较难修改),我们通常会使用(appearance:none)来取消默认样式,然后再进行修改.
+对于ugly(无法修改),最后还是建立一个自己的control来替换.
+## pseudo class
+对所有form control都起作用的：
+-   [`:hover`](https://developer.mozilla.org/en-US/docs/Web/CSS/:hover): 当被鼠标悬停时匹配.
+-   [`:focus`](https://developer.mozilla.org/en-US/docs/Web/CSS/:focus): 当被focus(如通过tab键)时匹配.
+-   [`:active`](https://developer.mozilla.org/en-US/docs/Web/CSS/:active): 当actived(点击或按下enter/return键)时匹配.
+还有一些特殊的:
+-   [`:required`](https://developer.mozilla.org/en-US/docs/Web/CSS/:required) and [`:optional`](https://developer.mozilla.org/en-US/docs/Web/CSS/:optional): 当control是必须的(有`required`属性)时时匹配第一个,否则是第二个.注意如果多个name属性相同的radio中有一个有`required`,它们在未选中时都是非法的,但只有那个有`required`的会匹配.
+-   [`:valid`](https://developer.mozilla.org/en-US/docs/Web/CSS/:valid) and [`:invalid`](https://developer.mozilla.org/en-US/docs/Web/CSS/:invalid), and [`:in-range`](https://developer.mozilla.org/en-US/docs/Web/CSS/:in-range) and [`:out-of-range`](https://developer.mozilla.org/en-US/docs/Web/CSS/:out-of-range):验证数据时是否符合规范匹配第一个和第一二,数字类型的control(日期类,number,range)是否在min和max设定的数字范围内匹配第三第四个.
+-   [`:enabled`](https://developer.mozilla.org/en-US/docs/Web/CSS/:enabled) and [`:disabled`](https://developer.mozilla.org/en-US/docs/Web/CSS/:disabled), and [`:read-only`](https://developer.mozilla.org/en-US/docs/Web/CSS/:read-only) and [`:read-write`](https://developer.mozilla.org/en-US/docs/Web/CSS/:read-write): 是否可用(有无`disable`)匹配前两个,是否只读(有`readonly`)匹配后两个.
+-   [`:checked`](https://developer.mozilla.org/en-US/docs/Web/CSS/:checked), [`:indeterminate`](https://developer.mozilla.org/en-US/docs/Web/CSS/:indeterminate), and [`:default`](https://developer.mozilla.org/en-US/docs/Web/CSS/:default): 对于checkbox和radio buttons,被选中时匹配第一个,还未选择时匹配第二个,默认值匹配第三个(注意即使不选中了也会匹配).
+对于何时匹配`indeterminate`有如下规则:
+-   [`<input/radio>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/radio) 当同个`name`属性的一组radio没有一个被选中时.
+-   [`<input/checkbox>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox)通过js将 `indeterminate` property设未true时.
+-   [`<progress>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress) 没有值时.
+除此之外还有一些浏览器支持没有那么好的:
+-   [`:focus-within`](https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-within)当它被focus它的子element被focus时匹配.
+-  [`:focus-visible`](https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible) 通过键盘focus时匹配.
+-   The [`:placeholder-shown`](https://developer.mozilla.org/en-US/docs/Web/CSS/:placeholder-shown) [`<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input) 和 [`<textarea>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea) 的placeholder显示时(即值未空且有placeholder设定)匹配. 
+# others
+## animation
+使用css动画有以下优点:
+1. 使用简易.
+2. 表现良好.
+3. 浏览器可控制,便于优化性能表现.
+css动画的核心是`animation`相关properties和@keyframes.
+相关properties:
+[`animation-name`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-name)
+
+在`@keyframes`中的名字.
+
+[`animation-duration`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-duration)
+
+动画一次循环的时长.
+
+[`animation-timing-function`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timing-function)
+
+控制动画途中如何进行.
+
+[`animation-delay`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-delay)
+
+element加载到动画开始的时长.
+
+[`animation-iteration-count`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-iteration-count)
+
+动画重复次数,可通过 `infinite` 设置为无限循环.
+
+[`animation-direction`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-direction)
+
+设置动画在循环中再次开始时的方向.
+
+[`animation-fill-mode`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-fill-mode)
+
+在执行动画前后是否应用动画使用的style,默认都不应用.
+
+[`animation-play-state`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-play-state)
+
+控制动画的开始暂停.
+
+例子:
+```css
+p {
+  animation-duration: 3s;
+  animation-name: slidein;
+}
+
+@keyframes slidein {
+  from {
+    margin-left: 100%;
+    width: 300%;
+  }
+
+  75% {
+    font-size: 300%;
+    margin-left: 25%;
+    width: 150%;
+  }
+
+  to {
+    margin-left: 0%;
+    width: 100%;
+  }
+}
+```
+其中是`from`,`to`是`0%`和`100%`的同义词.
+该动画会有字变大又变小的效果.在`@keyframes`中如果我们没有写相关的property的值,则它们会是相关element的对于property的值,动画依此产生.
+`animation`可以写成shorthand形式,不过写成longhand时我们可以写多个值(逗号分隔),那些值会一一对应:
+```css
+animation-name: fadeInOut, moveLeft300px, bounce;
+animation-duration: 2.5s, 5s, 1s;
+animation-iteration-count: 2, 1, 5;
+/*bounce-1s-5*/
+```
+如果值的数量不同,较少的被循环利用:
+```css
+animation-name: fadeInOut, moveLeft300px, bounce;
+animation-duration: 2.5s, 5s;
+animation-iteration-count: 2, 1;
+/*bounce-2.5s-2*/
+```
+## transition
+`transition`用于控制css properties变换时的动画.
+有如下的properties用于控制:
+[`transition-property`](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-property)
+
+标明值变化时要应用动画的properties.
+
+[`transition-duration`](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-duration)
+
+动画执行时长.
+
+[`transition-timing-function`](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function)
+
+指定一个函数用于控制properties中间值的生成.
+
+[`transition-delay`](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-delay)
+
+指定property值变化与动画开始之间的时间.
+
+shorthand:
+```css
+div {
+    transition: <property> <duration> <timing-function> <delay>;
+}
+```
+例子:
+```css
+#delay {
+  font-size: 14px;
+  transition-property: font-size;
+  transition-duration: 4s;
+  transition-delay: 2s;
+}
+
+#delay:hover {
+  font-size: 36px;
+}
+```
+如果有多个值时,值较少的property会被循环使用:
+```css
+div {
+  transition-property: opacity, left, top, height;
+  transition-duration: 3s, 5s;/*3,5,3,5*/
+}
+```
+特别的,如果是transition-property较短,其他的properties会被缩减.
+transition会发出事件便于js进行控制:
+```js
+el.addEventListener("transitionend", updateTransition, true);
+el.addEventListener("transitionrun", signalStart, true);//delay前发出
+el.addEventListener("transitionstart", signalStart, true);//delay后发出
+```
+event object添加了一些properties形成了`TransitionEvent` object:
+`propertyName`
+
+transition作用的css property名
+
+`elapsedTime`
+
+当事件发出时动画已经执行的时长.
+## scroll snap
+`scroll snap`可让用户滚动时快速滚动到指定位置,形成类似翻页的效果.
+它的核心是[`scroll-snap-type`](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-snap-type) 和 [`scroll-snap-align`](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-snap-align).
+例子:
+```html
+<article class="scroller">
+    <section>
+        <h2>Section one</h2>
+    </section>
+    <section>
+        <h2>Section two</h2>
+    </section>
+    <section>
+        <h2>Section three</h2>
+    </section>
+</article>
+```
+
+```css
+.scroller {
+    height: 300px;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+}
+
+.scroller section {
+    scroll-snap-align: start;
+}
+```
+其中y指的是会发生快速滚动的方向,`mandatory`指强制发生快速滚动,它还有另外一个可用值`proximity`,此时只会在接近时发生快速滚动.
+`scroll-snap-align`的`start`指的是滚动后停下的在section中的位置(其他element也可).除此之外还有`end`,`center`.
+`scroll-padding`和`scroll-margin`用于定义停下时的scroll container的padding和或子element的margin.显示效果是未翻整页.在前者`.scroller`中使用,后者在子element中使用,故后者可有不同值.
+## transform
+`transform`可在不影响normal flow的情况下改变element的形状和位置.它只对符合box model(display:block)的element起作用.
+主要的properties有两个:
+[`transform-origin`](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin)
+
+设置原点(默认是中心).如旋转时设置bottom left按左下点进行旋转.
+
+[`transform`](https://developer.mozilla.org/en-US/docs/Web/CSS/transform)
+
+指定改变的类型,可同时执行多个.改变的类型有 rotation, skewing, scaling, 和translation(平移).它们均可在x,y上进行(如translateX(2px)).
+也可以在进行3d的变换,不过需要指定`perspective`.
+
+## calc
+
+calc加使用`+`,`-`运算符必须在运算符的两边加上空格.
 
 # 一些建议
 

@@ -2,6 +2,8 @@
 title: TypeScript
 category: front-end
 abbrlink: d044eab7
+date: 2022/02/22 18:11:50
+updated: 2022/04/05 15:08:53
 ---
 在大型js应用中,Debug因为js灵活的type变得非常困难.`TypeScript`相对于在js的基础上添加了类型检查系统,为大型应用的构建提供了便利,同时也为可以增强编辑器的代码补全功能.
 本文是对ts官网handbook的内容的总结.

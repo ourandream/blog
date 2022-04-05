@@ -2,6 +2,8 @@
 title: vue
 category: front-end
 abbrlink: c0add594
+date: 2022/01/19 21:19:33
+updated: 2022/04/05 15:09:10
 ---
 vue是一个渐进式前端框架,是最热门的前端框架之一。
 本文是对vue官网的guide内容的总结,版本为目前的默认版本vue3。
@@ -2194,6 +2196,10 @@ export default {
 最后会通过inline style实现动态改变.
 # typescript
 可简单地在把`<script>`写成`<script lang="ts">`以开始写ts,或创建单独的`.ts`文件,当然这是建立上打包工具正确配置好ts的前提下.
+注意在vscode中,若使用了`volar`,我们需要关闭内置的typescript以使用它的`takeover mode`.关闭步骤如下:
+1. ctrl+shift+p打开命令行输入show build-in extensions.
+2. 点击后关闭typescript features(仅工作区)
+3. 重启vscode
 ## composition APIs
 当我们定义`props`,可以通过runtime declaration或type-based declaration获得type,即:
 ```html

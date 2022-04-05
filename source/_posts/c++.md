@@ -4,9 +4,14 @@ tags: code
 categories: languages
 mathjax: true
 abbrlink: 6f1ca842
+date: 2021/12/23 18:23:19
+updated: 2022/04/05 15:03:59
 ---
-关于c++相关内容的总结
+关于c++的基础知识的笔记。
 <!--more-->
+# c++
+
+
 ## 杂七杂八 
 一个中文占两个字符变量的长度
 
@@ -1583,4 +1588,35 @@ ptr.get()[index]
 ## 文件操作
 
 注意使用文件读写时最好不要用动态分配内存的类（如string），用了也记得记录大小，不然容易出错。
+想遍历文件不能使用`eof`,c++并不保证能到达文件尾,可以使用如下的形式:
+```c++
+while(f>>c){
+
+	 ascii[c]++;
+
+ }
+```
+想写bit可以先一个个收集bit然后再写入:
+```c++
+char byte=0;
+int current_bit=0;
+int bit;
+if (bit){
+
+	byte |= (1<<current_bit);
+	
+	current_bit++;
+
+}
+
+if(current_bit==8){
+
+	of<<byte;
+	
+	current_bit=0;
+	
+	byte=0;
+
+}
+```
 

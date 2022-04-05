@@ -2,8 +2,9 @@
 title: html
 category: front-end
 abbrlink: 1879f8e5
+date: 2021/12/23 18:23:21
+updated: 2021/12/23 18:23:21
 ---
-
 html是一种标记语言，用于让浏览器识别并展示内容。html包含一系列的element，以使各种各样的内容正确显示。本文内容是基于MDN web docs的[html学习](https://developer.mozilla.org/en-US/docs/Learn/HTML)的相关内容的个人总结.
 <!--more-->
 
@@ -212,6 +213,8 @@ for short quotations that don't require paragraph breaks.</q></p>
 <p>We use <abbr title="Hypertext Markup Language">HTML</abbr> to structure our web documents.</p>
 ```
 
+注意可添加`aria-label`属性并填入和`title`一样的内容保证朗读器能读到.
+
 我们使用`<address>`来表明一段内容是联系信息,里面可加链接,注意我们给出的联系信息需要与页内内容相关
 
 我们使用`<sup>`和`<sub>`实现文字上下标
@@ -266,6 +269,8 @@ for short quotations that don't require paragraph breaks.</q></p>
 向上访问多层嵌套..即可
 
 注意指向本文件的某部分只需加#即可
+
+控制超链接,我们使用`target` attribute,其中默认的`_self`是在当前标签页打开,`_blank`是在新标签页打开.
 
 对于超链接的书写,我们有一系列规则
 
@@ -746,4 +751,183 @@ vector graphics比位图好的方面是放大缩小不会失真，而且在其�
 
 </tbody>
 ```
+
+# form
+
+`web forms`用于用户与网页进行交互，它有很多的`form controls(widgets)`和一些辅助的element组成,并可验证输入的数据格式(`form validation`)
+
+## base
+
+定义`form`:
+
+```html
+<form action="/my-handling-form-page" method="post">
+	<li class="button">
+      	<button type="submit">Send your message</button>
+    </li>
+</form>
+```
+
+其中`action`指数据送往的`url`,`method`指http请求类型.`button`的类型是`submit`,点击它即会传送数据并打开相关界面.
+注意如果`form`会发送文件,我们需要设置`enctype="multipart/form-data"`,因为发送的数据会被分为多个部分,每个文件一部分,文本数据一部分,而且method需要被设置为`post`,`get`会将数据附在url中发送,这对文件显然是不可能的.而且一定要设置value.
+
+在`form`中,我们使用`fieldset`来组合一系列widget用于同种功能,这对如`radio`之类的widget尤为重要:
+
+```html
+<form>
+  <fieldset>
+    <legend>Fruit juice size</legend>
+    <p>
+      <input type="radio" name="size" id="size_1" value="small">
+      <label for="size_1">Small</label>
+    </p>
+    <p>
+      <input type="radio" name="size" id="size_2" value="medium">
+      <label for="size_2">Medium</label>
+    </p>
+    <p>
+      <input type="radio" name="size" id="size_3" value="large">
+      <label for="size_3">Large</label>
+    </p>
+  </fieldset>
+</form>
+```
+
+其中`legend`用与介绍`fieldset`的目的.
+
+我们也可以使用`section`来分隔`form`,通常的写法是`section`分隔大功能,`fieldset`分隔一些小功能.
+
+我们使用`label`对一个widget的功能进行说明:
+
+```html
+<label for="name">Name:</label> <input type="text" id="name" name="user_name">
+```
+
+也可以写成这样的格式:
+
+```html
+<label for="name">
+  Name: <input type="text" id="name" name="user_name">
+</label>
+```
+
+其中`for`指widget的id,后者并不需要加`for`,不过一般还是推荐加上.
+
+`label`被点击时,对应的widget也会工作.
+
+推荐每一个`widget`只有一个`label`.
+## html5 input type
+html5中引入了许多新的`input type`便于使用.
+`email`用于表示输入邮箱.它会检查邮箱格式,错误的话发送数据时会报错.
+可以利用`multiple`输入多个邮箱(逗号分隔):
+```html
+<input type="email" id="email" name="email" multiple>
+```
+`search`用于表示搜索框,与`text`不同的点是浏览器渲染的样式不同.有些浏览器还有自动保存搜索关键字的功能.
+`tel`用于输入电话号码.
+`url`用于输入链接.
+`number`用于输入数字,一般输入框的旁边还会有增加减少数字的按钮.
+我们可以设置最大最小值与增减数字的大小:
+
+```html
+<input type="number" name="age" id="age" min="1" max="10" step="2">
+```
+`step`的值可以是浮点数.
+`slider`用于设置一个滑动条,它用于精确值不重要的情况.一般需要正确设置最大最小,增减值,初始值等要素:
+```html
+<label for="price">Choose a maximum house price: </label>
+<input type="range" name="price" id="price" min="50000" max="500000" step="100" value="250000">
+<output class="price-output" for="price"></output>
+```
+一般还会加一个`output`的element再使用js显示当前值.
+html5还添加了多个可获取时间的type.
+`datetime-local`用于获取年月日和当前时刻等所有信息.
+`month`用于获取月份.
+`time`用于获取当前时刻(返回24小时制).
+`week`用于获取某年的第几周.
+`date`用于获取年月日.
+它们均可使用`max`,`min`,`step`等进行控制:
+```html
+<input type="date" name="myDate" min="2013-06-01" max="2013-08-31" step="7" id="myDate">
+```
+`color`用于获取颜色,一般返回6位16进制小写的信息.
+## other form controls
+多行输入：
+```html
+<textarea cols="30" rows="8">content</textarea>
+```
+中间的内容会作为默认值.可以放如何内容,即使是html语句也会被当初普通的字符串(可通过 [`contenteditable`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable)修改).
+它有三个控制多行显示的attributes:
+- `cols`,控制显示的宽度,值为一个正整数,单位为平均字符宽度,默认是20.
+- `rows`,显示的行数,默认为2.
+- `wrap`,控制换行,默认为`soft`,显示换行而发送的数据不换行,`hard`都都换行,`off`为都不换.
+我们还可以通过`resize`控制它是否可以通过拖动右下角改变大小:
+-   `both`: 默认,水平垂直都可以改变.
+-   `horizontal`: 仅水平.
+-   `vertical`: 仅垂直.
+-   `none`: 不可以改变.
+-   `block` and `inline`: 在block或inline的方向可以改变,实验性的值.
+我们可以通过`select`生成一个有下拉菜单选择的control:
+```html
+<select id="simple" name="simple">
+  <option>Banana</option>
+  <option selected>Cherry</option>
+  <option>Lemon</option>
+</select>
+```
+默认值通过在`option`填上`selected`属性来设置.
+通过`optgroup`来将`option`分组:
+```
+<select id="groups" name="groups">
+  <optgroup label="fruits">
+    <option>Banana</option>
+    <option selected>Cherry</option>
+    <option>Lemon</option>
+  </optgroup>
+  <optgroup label="vegetables">
+    <option>Carrot</option>
+    <option>Eggplant</option>
+    <option>Potato</option>
+  </optgroup>
+</select>
+```
+`option`可以使用`value`属性来控制被选中时发送的数据.默认会将它包裹的内容作为`value`.
+默认该control只显示一行,可以使用`size`来显示多行,值即为显示的行数.
+添加`mutiple`允许用户选中多个.
+`datelist`可以被用来为`input`添加自动补全的内容:
+```html
+<label for="myFruit">What's your favorite fruit?</label>
+<input type="text" name="myFruit" id="myFruit" list="mySuggestion">
+<datalist id="mySuggestion">
+  <option>Apple</option>
+  <option>Banana</option>
+  <option>Blackberry</option>
+  <option>Blueberry</option>
+  <option>Lemon</option>
+  <option>Lychee</option>
+  <option>Peach</option>
+  <option>Pear</option>
+</datalist>
+```
+在不支持`datalist`的浏览器可以通过在它中间添加`label`和`select`来处理,支持的浏览器会忽略`select`等有正常的补全,不支持的则会显示它们.
+它偶尔还会被用于一些特殊的用途,如让`input-range`有确定的值供点选,`input-color`有初始的自定义颜色.
+`progress`用于显示和`max`相比的比例:
+```html
+<progress max="100" value="75">75/100</progress>
+```
+`meter`用于显示值处理哪里范围,`min`和`low`之间为lower,`low`和`high`之间为`medium`,`high`和`max`之间为higher.
+然后我们定义`optinum`,即最优值.
+-   若它在lower,则 the lower range 为preferred part, the medium range为the average part, and the higher range 为 worst part.
+-  若在medium, the lower 为 average, the medium为preferred,higher range is 为average.
+-   若在 higher,  lower =>worst part, medium=>average part , higher=>preferred part.
+一般而已,preferred时显示绿色,average时显示黄色,worst时显示红色.
+`progress`和`meter`包裹的内容会作为不支持浏览器的显示或屏幕阅读器的读取部分.
+## Client-side form validation
+在发送数据前，我们需要对用户的数据进行验证,看看是否符合规范.
+html5提供了很多个attribute来验证:
+-   [`required`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required): 标出哪个control的数据是必须的.
+-   [`minlength`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/minlength) and [`maxlength`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/maxlength): 输入数据的长度的最小长度或最大长度.在实践中一般只指定后者.
+-   [`min`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/min) and [`max`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/max): 对于数字输入,指定最小值最大值.注意旁边的增减按钮也会被限定在此范围.
+-   `type`: 指定数据必须符合的类型.
+-   [`pattern`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern): 使用正则表达式指定数据必须符合的规范.注意`textarea`不支持.
 
