@@ -2,9 +2,10 @@
 title: pinia
 categories: front-end
 date: 2022/05/24 23:21:05
-updated: 2022/05/24 23:21:05
+updated: 2022/05/25 00:41:03
 ---
 pinia是vue官方推荐的存储管理库,可用于管理全局的数据.
+<!--more-->
 
 # 基础
 

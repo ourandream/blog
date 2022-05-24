@@ -2,9 +2,10 @@
 title: vue-router
 categories: front-end
 date: 2022/05/24 23:21:15
-updated: 2022/05/24 23:21:15
+updated: 2022/05/25 00:40:46
 ---
 [vue router](https://router.vuejs.org/)是vue官方推荐的管理单页应用路由的库.本文是对官网guide内容的总结.
+<!--more-->
 
 # 基础
 
